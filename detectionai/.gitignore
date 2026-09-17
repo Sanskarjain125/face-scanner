@@ -1,0 +1,19 @@
+# Enrolled reference images and the requested demonstration profiles are
+# versioned because the repository owner explicitly requested cloud hosting.
+
+# Local Python runtime and generated files
+.venv/
+.python311/
+__pycache__/
+*.py[cod]
+*.log
+python-*.exe
+
+# Android local configuration and build output
+android_app/.gradle/
+android_app/local.properties
+android_app/app/build/
+
+# Editor files
+.vscode/
+.idea/

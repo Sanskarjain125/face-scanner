@@ -1,0 +1,50 @@
+{
+  "person1": {
+    "name": "Sanskar Jain",
+    "age": "22 years",
+    "profile_type": "Appearance summary from enrolled reference photos",
+    "face_colour": "Medium brown complexion",
+    "face_shape": "Rounded-oval face shape",
+    "eyes": "Dark brown eyes",
+    "eyebrows": "Dark, full eyebrows",
+    "nose": "Medium, rounded nose",
+    "mouth": "Medium lips with a defined moustache line",
+    "jawline": "Softly defined, rounded jawline",
+    "head_hair": "Short, dark, wavy hair",
+    "facial_hair": "Short beard and moustache; clean cheek line",
+    "ears": "Average-sized ears, visible in the side-angle reference photos",
+    "scan_note": "This appearance profile is shown only after the enrolled face is recognised."
+  },
+  "deepak_sharma": {
+    "name": "Deepak Sharma",
+    "age": "21 years",
+    "profile_type": "Appearance summary from enrolled reference photos",
+    "face_colour": "Medium brown complexion",
+    "face_shape": "Oval face shape",
+    "eyes": "Dark brown eyes",
+    "eyebrows": "Dark, defined eyebrows",
+    "nose": "Straight, medium nose",
+    "mouth": "Medium lips with a natural smile",
+    "jawline": "Defined jawline",
+    "head_hair": "Short, dark, styled hair",
+    "facial_hair": "Neatly trimmed beard and moustache",
+    "ears": "Average-sized ears, visible in the reference photos",
+    "scan_note": "This appearance profile is shown only after Deepak Sharma's enrolled face is recognised."
+  },
+  "alia_bhatt": {
+    "name": "Alia Bhatt",
+    "age": "33 years",
+    "profession": "Actress & Film Producer",
+    "birth_place": "Mumbai, Maharashtra, India",
+    "profile_type": "Celebrity visual reference profile",
+    "face_shape": "Oval to softly rounded",
+    "face_colour": "Fair to medium complexion",
+    "eyes": "Dark brown, almond-shaped",
+    "eyebrows": "Naturally defined, full eyebrows",
+    "nose": "Medium, straight nose",
+    "mouth": "Medium lips with natural smile",
+    "jawline": "Softly defined, rounded jawline",
+    "head_hair": "Dark brown, shoulder length",
+    "scan_note": "Identified from enrolled authentic visual reference photos."
+  }
+}

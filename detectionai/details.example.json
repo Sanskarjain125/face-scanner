@@ -1,0 +1,7 @@
+{
+  "person1": {
+    "name": "Example Person",
+    "age": "22 years",
+    "scan_note": "Copy this file to details.json, then add your own local profile details."
+  }
+}

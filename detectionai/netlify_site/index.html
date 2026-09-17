@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#0b1020">
+    <meta name="description" content="Face Scanner companion app — private face scanning through a local PC service.">
+    <title>Face Scanner — Local & Private</title>
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <main>
+      <section class="hero">
+        <p class="eyebrow">PRIVATE · LOCAL-ONLY</p>
+        <h1>Face Scanner</h1>
+        <p class="lead">A private companion app that scans faces through the recognition service running on your own PC.</p>
+        <a class="primary" href="downloads/FaceScanner.apk" download>Download Android APK</a>
+        <p class="hint">Your face photos and profile details stay on your PC. This website does not collect or process them.</p>
+      </section>
+
+      <section class="card">
+        <h2>How it works</h2>
+        <ol>
+          <li>Run the Face Scanner server on your PC.</li>
+          <li>Connect your phone and PC to the same Wi-Fi network.</li>
+          <li>Open the Android app, allow camera access, then tap <strong>Connect</strong>.</li>
+          <li>Tap <strong>Scan Face</strong> to match against profiles stored locally on the PC.</li>
+        </ol>
+      </section>
+
+      <section class="card">
+        <h2>Start the PC scanner</h2>
+        <pre><code>cd E:\website\face_scanner
+.\.venv\Scripts\python.exe run.py</code></pre>
+        <p>For desktop camera use, open <code>http://127.0.0.1:5000</code> on that same PC.</p>
+      </section>
+
+      <section class="card">
+        <h2>Phone connection</h2>
+        <p>Enter the current PC Wi-Fi address in the app, for example <code>http://192.168.29.163:5000/</code>. If the PC joins another Wi-Fi network later, run <code>ipconfig</code> on the PC and replace the address with its new Wi-Fi IPv4 address.</p>
+      </section>
+
+      <section class="notice">
+        <h2>Privacy note</h2>
+        <p>This hosted page is only a download and setup guide. The face recognition service is intentionally kept on your local network rather than deployed to the public internet.</p>
+      </section>
+    </main>
+  </body>
+</html>

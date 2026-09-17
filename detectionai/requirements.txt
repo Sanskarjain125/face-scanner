@@ -1,0 +1,10 @@
+# Vercel serverless runtime. Recognition runs in the browser, so this function
+# needs only Flask and its direct runtime dependencies. The native dlib stack
+# stays in requirements.local.txt for optional local-only use.
+Flask==3.0.3
+Werkzeug==3.0.3
+Jinja2==3.1.6
+MarkupSafe==3.0.3
+click==8.5.0
+blinker==1.9.0
+itsdangerous==2.2.0

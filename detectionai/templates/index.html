@@ -1,0 +1,342 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#111827">
+    <title>Face Scanner & Physical Object Dictionary</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=20260915-6">
+  </head>
+  <body>
+    <!-- Top Sticky Header Navigation Bar -->
+    <header class="app-header">
+      <nav class="mode-tabs" role="tablist" aria-label="Main Navigation">
+        <button id="tabScanner" class="tab-button active" role="tab" aria-selected="true" aria-controls="scannerSection" type="button">
+          <span class="tab-icon">🎯</span>
+          <span>Face Scanner</span>
+        </button>
+        <button id="tabDictionary" class="tab-button" role="tab" aria-selected="false" aria-controls="dictionarySection" type="button">
+          <span class="tab-icon">📖</span>
+          <span>Object Dictionary</span>
+          <span class="tab-badge">{{ total_dictionary_entries or '5,000+' }} Items</span>
+        </button>
+      </nav>
+    </header>
+
+    <main class="app-shell">
+      <!-- Section 1: Face Scanner -->
+      <div id="scannerSection" class="tab-content active" role="tabpanel" aria-labelledby="tabScanner">
+        <div class="dict-quick-banner">
+          <div class="banner-text">
+            <strong>📖 Looking for the Object Dictionary?</strong>
+            <span>Search 5,000+ items (Apple, Chair, Laptop, etc.) with definitions &amp; purpose.</span>
+          </div>
+          <button id="gotoDictBtn" class="button button-dict-cta" type="button">Open Dictionary &rarr;</button>
+        </div>
+
+        <section class="intro">
+          <p class="eyebrow">Enrolled face scanner</p>
+          <h1>Face Scanner</h1>
+          <p class="subheading">Scan an enrolled face or one of the photographed objects directly in this website. Your live camera image stays in your browser during matching.</p>
+        </section>
+
+        <section class="scanner-card" aria-label="Camera scanner">
+          <div class="camera-with-pose">
+            <section class="camera-frame-wrap">
+              <div class="camera-frame">
+                <video id="camera" autoplay playsinline muted aria-label="Live camera preview"></video>
+                <div id="cameraPlaceholder" class="camera-placeholder">
+                  <span class="camera-icon" aria-hidden="true">⌁</span>
+                  <p>Camera preview will appear here</p>
+                </div>
+                <div id="scanOverlay" class="scan-overlay" hidden aria-hidden="true">
+                  <span class="scanner-line"></span>
+                </div>
+              </div>
+            </section>
+
+            <aside class="pose-panel" aria-live="polite">
+              <div id="poseEmojiRail" class="pose-emoji-rail" aria-label="Emoji posture list">
+                <button type="button" class="pose-emoji-btn active" data-label="Zoom_Out" data-emoji="😎" aria-label="Zoom Out posture">😎</button>
+                <button type="button" class="pose-emoji-btn" data-label="Video_Record" data-emoji="📹" aria-label="Video Record posture">📹</button>
+                <button type="button" class="pose-emoji-btn" data-label="zoom_In" data-emoji="😍" aria-label="Zoom In posture">😍</button>
+              </div>
+              <div class="pose-display-panel">
+                <div id="poseDisplayLarge" class="pose-display-large" aria-live="polite">🤔</div>
+                <p id="poseStatusText" class="pose-status-text">Loading hand posture model…</p>
+              </div>
+            </aside>
+          </div>
+
+          <p class="camera-hint">Place the complete object in the large preview and fill around 60–80% of the frame. Hold it steady for 2 seconds. Use portrait 9:16 on a phone (at least 720 × 1280) or landscape 16:9 on desktop.</p>
+
+          <div class="actions">
+            <button id="startCamera" class="button button-primary" type="button">Start Camera</button>
+            <button id="switchCamera" class="button button-secondary" type="button" disabled>Use Back Camera</button>
+            <button id="scanFace" class="button button-secondary" type="button" disabled>Scan Face / Object</button>
+            <button id="uploadImage" class="button button-secondary" type="button">Upload Image</button>
+          </div>
+          <input id="uploadImageInput" type="file" accept="image/*" hidden>
+          <div class="record-actions">
+            <button id="recordVideo" class="button button-record" type="button" disabled>Capture Video</button>
+          </div>
+          <p id="recordingStatus" class="recording-status" hidden aria-live="polite"></p>
+          <p id="statusMessage" class="status-message" role="status" aria-live="polite">Loading the recognition model…</p>
+          <p class="privacy-note">Camera frames and captured videos are processed only in this browser. They are not uploaded for a scan.</p>
+        </section>
+
+        <section id="lastScanCard" class="last-scan-card" hidden aria-live="polite">
+          <div>
+            <p class="result-label">Last scanned image</p>
+            <h2>Captured scan result</h2>
+            <p class="last-scan-note">Face labels and arrows are drawn from this captured camera frame.</p>
+          </div>
+          <img id="lastScannedImage" alt="Last scanned camera image with identified face labels and arrows">
+        </section>
+
+        <section id="lastVideoCard" class="last-scan-card" hidden aria-live="polite">
+          <div>
+            <p class="result-label">Last captured video</p>
+            <h2>Recorded face scan</h2>
+            <p class="last-scan-note">Faces identified while recording are shown separately below, with the final camera capture retained here.</p>
+          </div>
+          <video id="lastCapturedVideo" controls playsinline></video>
+        </section>
+
+        <section id="resultCards" class="result-cards" hidden aria-live="polite"></section>
+      </div>
+
+      <!-- Section 2: Physical Object Dictionary -->
+      <div id="dictionarySection" class="tab-content" role="tabpanel" aria-labelledby="tabDictionary" hidden>
+        <section class="intro">
+          <p class="eyebrow">Interactive Physical Knowledge Base</p>
+          <h1>Object Dictionary</h1>
+          <p class="subheading">Search any physical object (e.g. <strong>Apple</strong>, <strong>Chair</strong>, <strong>Laptop</strong>) to get instant definitions, purpose, why to use it, visual traits, and dataset specifications.</p>
+        </section>
+
+        <!-- Search Card -->
+        <section class="dict-search-card">
+          <form id="dictSearchForm" class="dict-search-bar" role="search" onsubmit="return false;">
+            <span class="dict-search-icon" aria-hidden="true">🔍</span>
+            <input
+              id="dictSearchInput"
+              type="search"
+              class="dict-search-input"
+              placeholder="Search keyword (e.g. apple, chair, laptop, camera)..."
+              autocomplete="off"
+              spellcheck="false"
+              aria-label="Search physical object dictionary"
+            >
+            <button id="dictClearButton" class="dict-clear-btn" type="button" aria-label="Clear search" hidden>✕</button>
+            <button id="dictSubmitButton" class="button button-primary dict-submit-btn" type="submit">Search</button>
+          </form>
+
+          <!-- Quick Suggestion Tags -->
+          <div class="quick-tags-container">
+            <span class="quick-tags-label">Popular searches:</span>
+            <div class="quick-tags-list">
+              <button type="button" class="quick-tag" data-word="Apple">🍎 Apple</button>
+              <button type="button" class="quick-tag" data-word="Chair">🪑 Chair</button>
+              <button type="button" class="quick-tag" data-word="Laptop">💻 Laptop</button>
+              <button type="button" class="quick-tag" data-word="Table">🪵 Table</button>
+              <button type="button" class="quick-tag" data-word="Bottle">🧴 Bottle</button>
+              <button type="button" class="quick-tag" data-word="Camera">📷 Camera</button>
+              <button type="button" class="quick-tag" data-word="Banana">🍌 Banana</button>
+              <button type="button" class="quick-tag" data-word="Desk">🏢 Desk</button>
+              <button type="button" class="quick-tag" data-word="Headphones">🎧 Headphones</button>
+              <button type="button" class="quick-tag" data-word="Car">🚗 Car</button>
+            </div>
+          </div>
+
+          <!-- Photographed Objects (folders with supplied reference images) -->
+          <div id="dictPhotoChipsContainer" class="photo-chips-container" hidden>
+            <span class="quick-tags-label">📷 Photographed objects (has real photos):</span>
+            <div id="dictPhotoChips" class="photo-chips-list"></div>
+          </div>
+
+          <!-- Category Filter Pills -->
+          <div class="dict-categories-wrapper">
+            <div id="dictCategoryPills" class="dict-category-pills">
+              <button type="button" class="category-pill active" data-category="">All Categories</button>
+              <button type="button" class="category-pill" data-category="Food">🍎 Food</button>
+              <button type="button" class="category-pill" data-category="Furniture">🪑 Furniture</button>
+              <button type="button" class="category-pill" data-category="Electronics">⚡ Electronics</button>
+              <button type="button" class="category-pill" data-category="Kitchenware">🍳 Kitchenware</button>
+              <button type="button" class="category-pill" data-category="Tools">🔧 Tools</button>
+              <button type="button" class="category-pill" data-category="Home Appliances">🏠 Home Appliances</button>
+              <button type="button" class="category-pill" data-category="Clothing">👕 Clothing</button>
+              <button type="button" class="category-pill" data-category="Office Supplies">📎 Office Supplies</button>
+              <button type="button" class="category-pill" data-category="Vehicles">🚗 Vehicles</button>
+              <button type="button" class="category-pill" data-category="Sports Equipment">⚽ Sports</button>
+            </div>
+          </div>
+        </section>
+
+        <!-- Active Entry Detail Card -->
+        <section id="dictDetailCard" class="dict-detail-card" hidden aria-live="polite">
+          <div class="dict-detail-header">
+            <div class="dict-header-main">
+              <span id="dictDetailCategory" class="dict-category-badge">Category</span>
+              <h2 id="dictDetailTitle" class="dict-detail-title">Apple</h2>
+              <span id="dictDetailSlug" class="dict-slug-badge">apple</span>
+            </div>
+            <div class="dict-header-actions">
+              <button id="dictSpeakBtn" class="dict-action-btn" type="button" title="Pronounce and read description">
+                🔊 <span>Pronounce</span>
+              </button>
+              <button id="dictCopyBtn" class="dict-action-btn" type="button" title="Copy object details">
+                📋 <span>Copy</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Highlight: Why Use It & Purpose Card -->
+          <div class="dict-purpose-box">
+            <div class="dict-purpose-header">
+              <span class="dict-purpose-icon">💡</span>
+              <span class="dict-purpose-label">Why Use It / Primary Purpose</span>
+            </div>
+            <p id="dictDetailPurpose" class="dict-purpose-text">Commonly used for eating, cooking, or food preparation.</p>
+          </div>
+
+          <!-- Highlight: Description -->
+          <div class="dict-section-block">
+            <div class="dict-section-title">
+              <span class="dict-sec-icon">📝</span>
+              <span>Description & What It Is</span>
+            </div>
+            <p id="dictDetailDescription" class="dict-section-text"></p>
+          </div>
+
+          <!-- Supplied Reference Photos (only shown when photos exist for this keyword) -->
+          <div id="dictDetailPhotosSection" class="dict-section-block dict-photos-block" hidden>
+            <div class="dict-section-title">
+              <span class="dict-sec-icon">📷</span>
+              <span>Reference Photos Supplied</span>
+              <span id="dictDetailPhotosCount" class="dict-photos-count"></span>
+            </div>
+            <div id="dictDetailPhotosGrid" class="dict-photos-grid"></div>
+          </div>
+
+          <!-- Grid Details -->
+          <div class="dict-info-grid">
+            <div class="dict-info-item">
+              <div class="dict-info-label">🔍 Visual Identification</div>
+              <p id="dictDetailVisual" class="dict-info-value"></p>
+            </div>
+            <div class="dict-info-item">
+              <div class="dict-info-label">📍 Common Locations</div>
+              <p id="dictDetailLocations" class="dict-info-value"></p>
+            </div>
+            <div class="dict-info-item">
+              <div class="dict-info-label">🧱 Materials & Composition</div>
+              <div id="dictDetailMaterials" class="dict-materials-list"></div>
+            </div>
+            <div class="dict-info-item">
+              <div class="dict-info-label">🏷️ Aliases & Scan Labels</div>
+              <div id="dictDetailAliases" class="dict-aliases-list"></div>
+            </div>
+          </div>
+
+          <!-- Training & Scanner Specifications -->
+          <div id="dictDetailScannerSpecs" class="dict-scanner-specs">
+            <div class="dict-section-title">
+              <span class="dict-sec-icon">📸</span>
+              <span>Dataset & Scanner Specifications</span>
+            </div>
+            <div class="dict-specs-grid">
+              <div class="dict-spec-pill">
+                <span class="spec-label">Image Folder:</span>
+                <span id="dictSpecFolder" class="spec-val">apple</span>
+              </div>
+              <div class="dict-spec-pill">
+                <span class="spec-label">Scan Label:</span>
+                <span id="dictSpecLabel" class="spec-val">apple</span>
+              </div>
+              <div class="dict-spec-pill">
+                <span class="spec-label">Recommended Photos:</span>
+                <span id="dictSpecPhotos" class="spec-val">25 min / 50 optimal</span>
+              </div>
+            </div>
+            <p id="dictSpecNotes" class="dict-spec-notes"></p>
+          </div>
+        </section>
+
+        <!-- Search Results Grid Section -->
+        <section class="dict-results-section">
+          <div class="dict-results-header">
+            <h3 id="dictResultsCount" class="dict-results-title">Exploring Physical Objects</h3>
+            <span id="dictResultsSub" class="dict-results-sub">Click any item to view full definition &amp; purpose</span>
+          </div>
+          <div id="dictResultsGrid" class="dict-results-grid"></div>
+        </section>
+
+        <!-- Custom Item Addition Accordion -->
+        <section class="dict-add-section">
+          <button id="dictToggleAddBtn" class="dict-toggle-add-btn" type="button">
+            <span>➕ Add New Custom Word to Dataset</span>
+            <span id="dictAddChevron" class="dict-chevron">▼</span>
+          </button>
+          <div id="dictAddFormContainer" class="dict-add-container" hidden>
+            <form id="dictAddForm" class="dict-add-form">
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="newWord">Object / Keyword Name *</label>
+                  <input id="newWord" type="text" class="dict-input" required placeholder="e.g. Dragonfruit, Smart Glasses">
+                </div>
+                <div class="form-group">
+                  <label for="newCategory">Category</label>
+                  <input id="newCategory" type="text" class="dict-input" placeholder="e.g. Food, Electronics, Furniture">
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="newDescription">Description *</label>
+                <textarea id="newDescription" class="dict-textarea" rows="2" required placeholder="What is this object and how is it defined?"></textarea>
+              </div>
+              <div class="form-group">
+                <label for="newPrimaryUse">Why Use It / Primary Purpose *</label>
+                <textarea id="newPrimaryUse" class="dict-textarea" rows="2" required placeholder="Why do people use this object? What is its utility or benefit?"></textarea>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="newVisual">Visual Identification</label>
+                  <input id="newVisual" type="text" class="dict-input" placeholder="Key visual traits, shapes, colors...">
+                </div>
+                <div class="form-group">
+                  <label for="newLocations">Common Locations</label>
+                  <input id="newLocations" type="text" class="dict-input" placeholder="e.g. Kitchen, Office, Living room">
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="newMaterials">Materials (comma-separated)</label>
+                  <input id="newMaterials" type="text" class="dict-input" placeholder="e.g. Plastic, Aluminum, Glass">
+                </div>
+                <div class="form-group">
+                  <label for="newAliases">Aliases (comma-separated)</label>
+                  <input id="newAliases" type="text" class="dict-input" placeholder="e.g. fruit, edible fruit">
+                </div>
+              </div>
+              <div class="form-actions">
+                <button type="submit" class="button button-primary">Save to Dataset</button>
+                <p id="dictAddStatus" class="dict-add-status" hidden></p>
+              </div>
+            </form>
+          </div>
+        </section>
+      </div>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@1.7.4/dist/tf.min.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/@teachablemachine/pose@0.8.6/dist/teachablemachine-pose.min.js" defer></script>
+    <script src="https://unpkg.com/face-api.js@0.22.2/dist/face-api.min.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands@0.4.1675469240/hands.js" crossorigin="anonymous" defer></script>
+    <script>
+      window.FACE_MATCH_THRESHOLD = {{ threshold|tojson }};
+      window.ENROLLED_PROFILES = {{ enrolment_manifest|tojson }};
+      window.OBJECT_MANIFEST = {{ object_manifest|tojson }};
+      window.TOTAL_DICTIONARY_ENTRIES = {{ total_dictionary_entries|tojson }};
+    </script>
+    <script src="{{ url_for('static', filename='script.js', v='20260917-01') }}" defer></script>
+  </body>
+</html>

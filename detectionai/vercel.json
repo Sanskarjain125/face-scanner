@@ -1,0 +1,10 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "functions": {
+    "app.py": {
+      "maxDuration": 60,
+      "includeFiles": "{templates/**,static/**,known_faces/**,object_images/**,details.json}",
+      "excludeFiles": "{.venv/**,.python311/**,android_app/**,**/__pycache__/**,**/*.pyc}"
+    }
+  }
+}

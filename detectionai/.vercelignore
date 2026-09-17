@@ -1,0 +1,13 @@
+# The Vercel project is the browser website only. Do not upload the legacy
+# Android client, local Python runtime, logs, or alternate Netlify export.
+android_app/
+.venv/
+.python311/
+__pycache__/
+*.pyc
+*.log
+python-*.exe
+run.py
+requirements.local.txt
+netlify_site/
+netlify.toml
